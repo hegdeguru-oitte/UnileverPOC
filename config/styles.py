@@ -181,3 +181,66 @@ CSS_STYLES = f"""
     }}
 </style>
 """
+import streamlit as st
+from services.incident_manager import IncidentManager
+from services.email_service import EmailService
+from ui.components import display_incident_details, display_email_section
+from utils.session_state import update_file_state
+
+def show():
+    st.title("🚨 Incident Details")
+    
+    incident_manager = IncidentManager()
+
+    uploaded_file = st.file_uploader("Choose a DOCX file", type="docx")
+    if uploaded_file:
+        if 'transcript' not in st.session_state:
+            transcript = incident_manager.read_docx(uploaded_file)
+            st.session_state.transcript = transcript
+            st.session_state.incident_data = incident_manager.extract_incident_details(transcript)
+            st.success("Transcript processed successfully!")
+            update_file_state()
+
+    if st.session_state.incident_data:
+        display_incident_details(st.session_state.incident_data)
+        additional_recipients = display_email_section(
+            st.session_state.incident_data,
+            st.session_state.recipients,
+            st.session_state.show_process_button
+        )
+
+        if st.button("Send Notification"):
+            subject = f"Major Incident: {st.session_state.incident_data.get('short_description', 'N/A')}"
+            recipients = list(set(
+                st.session_state.recipients +
+                [email.strip() for email in additional_recipients.split(',') if email.strip()]
+            ))
+            html_content = EmailService.generate_email_html(st.session_state.incident_data)
+            EmailService.send_email(recipients, subject, html_content)
+            st.success("Notification sent successfully!")
+import streamlit as st
+from services.detail_extractor import IncidentDetailExtractor
+from ui.components import display_detailed_issue_info
+from ui.counter import create_timer_app
+
+def show():
+    st.title("📊 Incident Summary")
+
+    if 'transcript' in st.session_state and st.session_state.transcript:
+        if 'detailed_issue_info' not in st.session_state:
+            if 'settings' in st.session_state:
+                detailed_extractor = IncidentDetailExtractor(st.session_state.settings.OPENAI_API_KEY)
+                detailed_issue_info = detailed_extractor.extract_detailed_issue_info(st.session_state.transcript)
+                if detailed_issue_info:
+                    st.session_state.detailed_issue_info = detailed_issue_info
+
+        # Display timer first
+        create_timer_app()
+        
+        # Then display detailed information
+        if 'detailed_issue_info' in st.session_state and st.session_state.detailed_issue_info:
+            display_detailed_issue_info(st.session_state.detailed_issue_info)
+        else:
+            st.warning("Detailed incident information not available.")
+    else:
+        st.warning("Please upload and process an incident document in the Incident Details page first.")
