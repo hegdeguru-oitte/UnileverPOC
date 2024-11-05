@@ -17,6 +17,11 @@ class IncidentManager:
     
     Attributes:
         settings (Settings): Configuration settings including API keys
+        
+    Example:
+        >>> manager = IncidentManager()
+        >>> text = manager.read_docx(uploaded_file)
+        >>> details = manager.extract_incident_details(text)
     """
 
     def __init__(self):
