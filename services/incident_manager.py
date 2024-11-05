@@ -7,6 +7,14 @@ from config.settings import Settings
 
 class IncidentManager:
     """
+    Handles incident document processing and information extraction.
+    
+    This class manages:
+    - Reading DOCX incident reports
+    - Communicating with OpenAI API
+    - Extracting structured incident data
+    """
+    """
     Manages incident processing, document reading, and OpenAI API interactions.
     
     This class handles the core functionality of processing incident reports,
@@ -24,6 +32,21 @@ class IncidentManager:
         openai.api_key = self.settings.OPENAI_API_KEY
 
     def read_docx(self, file):
+        """
+        Extracts text content from a DOCX incident report.
+        
+        Input:
+            file: BytesIO or file object containing DOCX document
+            
+        Output:
+            str: Plain text content of the document with paragraphs joined by newlines
+            
+        Example:
+            >>> manager = IncidentManager()
+            >>> text = manager.read_docx(uploaded_file)
+            >>> print(text)
+            "Incident occurred at 14:00 UTC..."
+        """
         """
         Read and extract text content from a DOCX file.
         
@@ -48,6 +71,22 @@ class IncidentManager:
             raise
 
     def call_openai_api(self, system_content, user_content):
+        """
+        Makes a completion request to OpenAI's API.
+        
+        Input:
+            system_content: str - Instructions for the AI model
+            user_content: str - The actual text to process
+            
+        Output:
+            str: The AI model's response text
+            
+        Example:
+            >>> response = call_openai_api(
+                    "Extract dates from text",
+                    "The incident started on June 1st"
+                )
+        """
         """
         Make a call to OpenAI's API for text processing.
         
