@@ -1,6 +1,6 @@
 # app.py
 import streamlit as st
-from pages import incident_details, incident_summary
+from views import incident_details, incident_summary  # Changed from 'pages' to 'views'
 from config.styles import CSS_STYLES
 from utils.session_state import initialize_session_state
 from config.settings import Settings
@@ -12,7 +12,7 @@ def main():
         layout="wide"
     )
     st.markdown(CSS_STYLES, unsafe_allow_html=True)
-    
+
     # Initialize session state
     initialize_session_state()
     if 'settings' not in st.session_state:
