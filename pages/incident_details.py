@@ -27,7 +27,7 @@ def show():
             st.session_state.show_process_button
         )
 
-        if st.button("Send Notification"):
+        if st.button("Send Notification", key="send_notification_btn"):
             subject = f"Major Incident: {st.session_state.incident_data.get('short_description', 'N/A')}"
             recipients = list(set(
                 st.session_state.recipients +

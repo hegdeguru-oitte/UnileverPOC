@@ -205,7 +205,7 @@ def create_timer_app():
     col1, col2, col3 = st.columns([5, 1, 1])
     with col1:
         if not st.session_state.incident_active:
-            if st.button("Start Incident"):
+            if st.button("Start Incident", key="start_incident_btn"):
                 st.session_state.incident_active = True
                 st.session_state.start_time = datetime.now()
                 st.session_state.current_phase = 1
@@ -214,7 +214,7 @@ def create_timer_app():
     
     with col2:
         if st.session_state.incident_active:
-            if st.button("Next Phase"):
+            if st.button("Next Phase", key="next_phase_btn"):
                 if st.session_state.current_phase < 4:  # Max 4 phases
                     # Record end of current phase
                     update_phase_history(st.session_state.current_phase, datetime.now())
@@ -233,7 +233,8 @@ def create_timer_app():
                     label="Export Phases",
                     data=csv,
                     file_name=f"incident_phases_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
-                    mime='text/csv'
+                    mime='text/csv',
+                    key="export_phases_btn"
                 )
     
     # Create and display status cards
