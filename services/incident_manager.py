@@ -13,12 +13,10 @@ class IncidentManager:
     - Reading DOCX incident reports
     - Communicating with OpenAI API
     - Extracting structured incident data
-    """
-    """
-    Manages incident processing, document reading, and OpenAI API interactions.
+    - Processing and structuring incident information
     
-    This class handles the core functionality of processing incident reports,
-    including reading DOCX files and extracting structured information using OpenAI.
+    Attributes:
+        settings (Settings): Configuration settings including API keys
     """
 
     def __init__(self):
