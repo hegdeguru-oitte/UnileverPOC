@@ -117,16 +117,30 @@ class IncidentManager:
 
     def extract_incident_details(self, transcript):
         """
-        Extract structured incident details from a transcript using OpenAI.
+        Extracts structured incident information from text using OpenAI.
         
-        Args:
-            transcript (str): The incident transcript text
+        Input:
+            transcript: str - Raw incident report text
             
-        Returns:
-            dict: Structured incident data including ID, status, description, etc.
-            
-        Raises:
-            Exception: If there's an error in extraction or JSON parsing
+        Output:
+            dict: Structured data containing:
+                - incident_id: str
+                - status: str
+                - short_description: str
+                - outage_time: str (UTC)
+                - mim_notified_time: str (UTC)
+                - reported_by: str
+                - description: str
+                - business_impact: str
+                - impacted_services: list[str]
+                - next_update: str (UTC)
+                - bridge_details: dict
+                - resolution_teams: list[str]
+                
+        Example:
+            >>> details = extract_incident_details("Major outage occurred...")
+            >>> print(details['incident_id'])
+            "INC123456"
         """
         system_content = """You are an expert at extracting incident management information. 
         Extract the following details from the provided transcript and return them in valid JSON format:
