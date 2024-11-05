@@ -6,11 +6,36 @@ import logging
 from config.settings import Settings
 
 class IncidentManager:
+    """
+    Manages incident processing, document reading, and OpenAI API interactions.
+    
+    This class handles the core functionality of processing incident reports,
+    including reading DOCX files and extracting structured information using OpenAI.
+    """
+
     def __init__(self):
+        """
+        Initialize the IncidentManager with OpenAI API settings.
+        
+        Raises:
+            ValueError: If required environment variables are missing
+        """
         self.settings = Settings()
         openai.api_key = self.settings.OPENAI_API_KEY
 
     def read_docx(self, file):
+        """
+        Read and extract text content from a DOCX file.
+        
+        Args:
+            file: A file-like object containing a DOCX document
+            
+        Returns:
+            str: Concatenated text content from the document
+            
+        Raises:
+            Exception: If there's an error reading the DOCX file
+        """
         try:
             doc = docx.Document(file)
             full_text = []
@@ -23,6 +48,19 @@ class IncidentManager:
             raise
 
     def call_openai_api(self, system_content, user_content):
+        """
+        Make a call to OpenAI's API for text processing.
+        
+        Args:
+            system_content (str): Instructions for the AI model
+            user_content (str): The actual content to be processed
+            
+        Returns:
+            str: The processed response from OpenAI
+            
+        Raises:
+            Exception: If there's an error calling the OpenAI API
+        """
         try:
             response = openai.chat.completions.create(
                 model="gpt-3.5-turbo",
@@ -39,7 +77,18 @@ class IncidentManager:
             raise
 
     def extract_incident_details(self, transcript):
-        """Extract incident details from transcript using OpenAI."""
+        """
+        Extract structured incident details from a transcript using OpenAI.
+        
+        Args:
+            transcript (str): The incident transcript text
+            
+        Returns:
+            dict: Structured incident data including ID, status, description, etc.
+            
+        Raises:
+            Exception: If there's an error in extraction or JSON parsing
+        """
         system_content = """You are an expert at extracting incident management information. 
         Extract the following details from the provided transcript and return them in valid JSON format:
         {
