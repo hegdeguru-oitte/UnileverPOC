@@ -18,7 +18,7 @@ def main():
     )
     st.markdown(CSS_STYLES, unsafe_allow_html=True)
     
-    st.title("🚨 Major Incident Management")
+    st.title("🚨 Major Incident Management Dashboard")
     initialize_session_state()
     incident_manager = IncidentManager()
 

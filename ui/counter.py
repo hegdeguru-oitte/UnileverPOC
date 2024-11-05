@@ -1,6 +1,8 @@
 import streamlit as st
 import streamlit.components.v1 as components
 from datetime import datetime
+import pandas as pd
+import io
 
 def initialize_session_state():
     if 'incident_active' not in st.session_state:
@@ -9,6 +11,52 @@ def initialize_session_state():
         st.session_state.start_time = None
     if 'current_phase' not in st.session_state:
         st.session_state.current_phase = 1
+    if 'phase_history' not in st.session_state:
+        st.session_state.phase_history = []
+    if 'current_phase_start' not in st.session_state:
+        st.session_state.current_phase_start = None
+
+def update_phase_history(phase_num, end_time):
+    """
+    Update phase history when a phase ends
+    """
+    PHASE_NAMES = {
+        1: "P1/PMI Decision",
+        2: "First Update",
+        3: "Second Update",
+        4: "Third Update"
+    }
+    
+    if st.session_state.current_phase_start:
+        duration = (end_time - st.session_state.current_phase_start).total_seconds() / 60  # in minutes
+        st.session_state.phase_history.append({
+            'Phase': PHASE_NAMES[phase_num],
+            'Start Time': st.session_state.current_phase_start.strftime('%Y-%m-%d %H:%M:%S'),
+            'End Time': end_time.strftime('%Y-%m-%d %H:%M:%S'),
+            'Duration (minutes)': round(duration, 2)
+        })
+
+def export_phase_data():
+    """
+    Create and return exportable phase history data
+    """
+    if not st.session_state.phase_history:
+        return None
+    
+    df = pd.DataFrame(st.session_state.phase_history)
+    
+    # Add current phase if incident is active
+    if st.session_state.incident_active and st.session_state.current_phase_start:
+        current_duration = (datetime.now() - st.session_state.current_phase_start).total_seconds() / 60
+        current_phase = {
+            'Phase': f"Phase {st.session_state.current_phase}",
+            'Start Time': st.session_state.current_phase_start.strftime('%Y-%m-%d %H:%M:%S'),
+            'End Time': 'Ongoing',
+            'Duration (minutes)': round(current_duration, 2)
+        }
+        df = pd.concat([df, pd.DataFrame([current_phase])], ignore_index=True)
+    
+    return df
 
 def create_status_cards():
     """
@@ -19,16 +67,14 @@ def create_status_cards():
         1: 15 * 60,  # 15 minutes in seconds
         2: 60 * 60,  # 60 minutes in seconds
         3: 60 * 60,  # 60 minutes in seconds
-        4: 60 * 60,  # 60 minutes in seconds
-        5: 60 * 60   # 60 minutes in seconds
+        4: 60 * 60   # 60 minutes in seconds
     }
     
     PHASE_DESCRIPTIONS = {
         1: "Awaiting P1/PMI Decision",
         2: "Time until 1st Update",
         3: "Time until 2nd Update",
-        4: "Time until 3rd Update",
-        5: "Time until 4th Update"
+        4: "Time until 3rd Update"
     }
 
     start_time_str = st.session_state.start_time.strftime('%Y-%m-%d %H:%M:%S') if st.session_state.start_time else ''
@@ -145,26 +191,51 @@ def create_timer_app():
     # st.set_page_config(page_title="Incident Timer", layout="wide")
     initialize_session_state()
     
-    # Start/Stop Incident Button
-    col1, col2 = st.columns([6, 1])
+    # Start/Stop Incident and Next Phase buttons
+    col1, col2, col3 = st.columns([5, 1, 1])
     with col1:
         if not st.session_state.incident_active:
             if st.button("Start Incident"):
                 st.session_state.incident_active = True
                 st.session_state.start_time = datetime.now()
                 st.session_state.current_phase = 1
+                st.session_state.current_phase_start = datetime.now()
                 st.experimental_rerun()
     
-    # Next Phase Button
     with col2:
         if st.session_state.incident_active:
             if st.button("Next Phase"):
-                if st.session_state.current_phase < 5:  # Max 5 phases
+                if st.session_state.current_phase < 4:  # Max 4 phases
+                    # Record end of current phase
+                    update_phase_history(st.session_state.current_phase, datetime.now())
+                    # Move to next phase
                     st.session_state.current_phase += 1
+                    st.session_state.current_phase_start = datetime.now()
                     st.experimental_rerun()
+    
+    with col3:
+        if st.session_state.incident_active:
+            # Export button
+            df = export_phase_data()
+            if df is not None:
+                csv = df.to_csv(index=False).encode('utf-8')
+                st.download_button(
+                    label="Export Phases",
+                    data=csv,
+                    file_name=f"incident_phases_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
+                    mime='text/csv'
+                )
     
     # Create and display status cards
     cards_html = create_status_cards()
     components.html(cards_html, height=150)
-
     
+    # Display phase history table if available
+    if st.session_state.phase_history:
+        st.markdown("### Phase History")
+        df = export_phase_data()
+        if df is not None:
+            st.dataframe(df)
+
+if __name__ == "__main__":
+    create_timer_app()
