@@ -5,6 +5,16 @@ import pandas as pd
 import io
 
 def initialize_session_state():
+    """
+    Initialize session state variables for incident timing and phases.
+    
+    Sets up the following state variables:
+    - incident_active (bool): Whether an incident is currently active
+    - start_time (datetime): When the incident started
+    - current_phase (int): Current phase number (1-4)
+    - phase_history (list): History of completed phases
+    - current_phase_start (datetime): When current phase started
+    """
     if 'incident_active' not in st.session_state:
         st.session_state.incident_active = False
     if 'start_time' not in st.session_state:

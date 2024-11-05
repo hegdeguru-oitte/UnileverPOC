@@ -4,7 +4,23 @@ import json
 import logging
 
 class IncidentDetailExtractor:
-    """Extracts detailed incident information from transcripts using OpenAI."""
+    """
+    Extracts detailed incident information from transcripts using OpenAI.
+    
+    This class provides detailed extraction of incident information including:
+    - Issue identification and location
+    - Business impact analysis
+    - Action tracking
+    - Participant information
+    
+    Attributes:
+        api_key (str): OpenAI API key for authentication
+        
+    Example:
+        >>> extractor = IncidentDetailExtractor(api_key)
+        >>> details = extractor.extract_detailed_issue_info("Incident report...")
+        >>> print(details['issue_id'])
+    """
     
     def __init__(self, api_key):
         self.api_key = api_key
