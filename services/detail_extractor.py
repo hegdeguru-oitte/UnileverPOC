@@ -47,7 +47,8 @@ class IncidentDetailExtractor:
                 "workaround_available": "Yes/No"
             },
             "actions_taken": ["Actions list"],
-            "participants": ["Participant list"]
+            "participants": ["Participant list"],
+            "additional_info": ["Additional information items"]
         }
 
         try:

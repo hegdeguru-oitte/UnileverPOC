@@ -1,2 +1,3 @@
 #ingnore env files
 .env
+.aider*
