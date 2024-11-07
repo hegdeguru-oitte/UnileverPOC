@@ -456,6 +456,7 @@ from groq import Groq
 import chromadb
 from chromadb.utils import embedding_functions
 from chromadb.errors import InvalidCollectionException
+import shutil
 import logging
 from tqdm import tqdm
 from config.settings import Settings
