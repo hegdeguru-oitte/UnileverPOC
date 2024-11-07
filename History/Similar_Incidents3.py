@@ -459,7 +459,6 @@ from chromadb.errors import InvalidCollectionException
 import logging
 from tqdm import tqdm
 import shutil
-import sys
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -471,14 +470,16 @@ class EnhancedIncidentAnalysisSystem:
     A system for analyzing IT incidents and finding similar historical cases.
     """
     
-    def __init__(self, groq_api_key, historical_incidents_file=None):
+    def __init__(self, groq_api_key=None, historical_incidents_file=None):
         """
         Initialize the incident analysis system.
         
         Args:
-            groq_api_key (str): API key for Groq LLM service
+            groq_api_key (str, optional): API key for Groq LLM service
             historical_incidents_file (str, optional): Path to Excel file containing historical incidents
         """
+        if groq_api_key is None:
+            groq_api_key = Settings().GROQ_API_KEY
         self.groq_client = Groq(api_key=groq_api_key)
         self.chroma_client = chromadb.PersistentClient(path="./chroma_db")
         self.embedding_function = embedding_functions.DefaultEmbeddingFunction()
