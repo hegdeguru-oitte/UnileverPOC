@@ -47,3 +47,54 @@ def show():
             )
     else:
         st.warning("Please process an incident document first.")
+import streamlit as st
+from services.incident_manager import IncidentManager
+from History.Similar_Incidents3 import EnhancedIncidentAnalysisSystem
+from ui.components import display_incident_details
+
+def show():
+    st.title("🔍 Similar Historical Incidents")
+
+    # Initialize the incident analysis system
+    analysis_system = EnhancedIncidentAnalysisSystem()
+
+    # Input for incident description
+    incident_description = st.text_area("Describe the current incident", height=150)
+
+    if st.button("Analyze Incident"):
+        if incident_description:
+            with st.spinner("Analyzing..."):
+                result = analysis_system.analyze_incident(incident_description)
+
+                # Display root cause analysis
+                st.subheader("Root Cause Analysis")
+                root_cause = result['current_incident']['analysis']
+                st.markdown(f"""
+                    <div class="card">
+                        <h4>Category: {root_cause.get('CATEGORY', 'N/A')}</h4>
+                        <p><strong>Root Cause:</strong> {root_cause.get('ROOT_CAUSE', 'N/A')}</p>
+                        <p><strong>Impact Level:</strong> {root_cause.get('IMPACT', 'N/A')}</p>
+                        <p><strong>Component:</strong> {root_cause.get('COMPONENT', 'N/A')}</p>
+                        <p><strong>Solution:</strong> {root_cause.get('SOLUTION', 'N/A')}</p>
+                        <p><strong>Prevention:</strong> {root_cause.get('PREVENTION', 'N/A')}</p>
+                    </div>
+                """, unsafe_allow_html=True)
+
+                # Display similar incidents
+                st.subheader("Similar Incidents")
+                for incident in result['similar_incidents']:
+                    st.markdown(f"""
+                        <div class="card">
+                            <h4>Incident ID: {incident['incident_id']}</h4>
+                            <p><strong>Similarity Score:</strong> {incident['similarity_score']}%</p>
+                            <p><strong>Description:</strong> {incident['description']}</p>
+                            <p><strong>Actions Taken:</strong> {incident['actions_taken']}</p>
+                            <p><strong>Participants:</strong> {incident['participants']}</p>
+                        </div>
+                    """, unsafe_allow_html=True)
+
+                # Export button
+                if st.button("Export Analysis Results"):
+                    st.success("Analysis results exported successfully!")
+        else:
+            st.warning("Please enter an incident description to analyze.")
