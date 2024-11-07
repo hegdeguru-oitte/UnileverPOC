@@ -458,7 +458,7 @@ from chromadb.utils import embedding_functions
 from chromadb.errors import InvalidCollectionException
 import logging
 from tqdm import tqdm
-import shutil
+from config.settings import Settings
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
